@@ -5,4 +5,6 @@ import com.simplecoding.orderservice.domain.entity.Order
 
 interface OrderService {
     fun create(request: CreateOrderRequestDto): Order
+
+    fun getOrderWithItems(id: Long): Order?
 }

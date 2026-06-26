@@ -20,3 +20,32 @@ logging:
   level:
     root: info
     com.simplecoding.orderservice: debug
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+          - metrics
+          - prometheus
+          - loggers
+
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  info:
+    env:
+      enabled: true
+    git:
+      enabled: true
+      mode: full
+
+info:
+  app:
+    name: "E-Commerce-App(order-service)"
+    version: "1.0.0"
+    description: "trying to make my microservices!!!"

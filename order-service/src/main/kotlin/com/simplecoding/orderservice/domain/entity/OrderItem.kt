@@ -13,7 +13,7 @@ import java.math.BigDecimal
 
 @Entity
 @Table(name = "order_items")
-class OrderItem {
+class OrderItem() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
@@ -39,7 +39,7 @@ class OrderItem {
         productName: String?,
         quantity: Int?,
         price: BigDecimal?,
-    ) {
+    ): this() {
         this.productId = productId
         this.productName = productName
         this.quantity = quantity

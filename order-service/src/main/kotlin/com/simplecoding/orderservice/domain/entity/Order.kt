@@ -16,7 +16,7 @@ import java.util.UUID
 
 @Entity
 @Table(name = "orders")
-class Order {
+class Order() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
@@ -38,9 +38,9 @@ class Order {
     var status: OrderStatus? = null
 
     @OneToMany(mappedBy = "order", cascade = [CascadeType.ALL], orphanRemoval = true)
-    private var items: MutableList<OrderItem> = mutableListOf()
+    var items: MutableList<OrderItem> = mutableListOf()
 
-    constructor(items: List<OrderItem>) {
+    constructor(items: List<OrderItem>) : this() {
         this.status = OrderStatus.CREATED
         this.orderUuid = UUID.randomUUID().toString()
         items.forEach { item -> item.order = this }

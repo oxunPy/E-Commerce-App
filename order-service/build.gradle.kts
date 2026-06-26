@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.simplecoding"
-version = "0.0.1-SNAPSHOT"
+version = "1.0.0"
 description = "order-service"
 
 java {
@@ -36,6 +36,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.testcontainers:postgresql")
     runtimeOnly("org.postgresql:postgresql")
+    runtimeOnly("io.micrometer:micrometer-registry-prometheus")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
