@@ -5,6 +5,7 @@ import com.simplecoding.orderservice.domain.entity.Order
 import com.simplecoding.orderservice.domain.entity.OrderItem
 import com.simplecoding.orderservice.exception.NotFoundOrderException
 import com.simplecoding.orderservice.exception.OrderCreatedException
+import com.simplecoding.orderservice.metrics.annotation.BusinessMetric
 import com.simplecoding.orderservice.repository.OrderRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -17,6 +18,10 @@ class OrderServiceImpl(
 
     private val log = LoggerFactory.getLogger(OrderServiceImpl::class.java)
 
+    @BusinessMetric(
+        value = "orders.create",
+        tags = ["operation=create", "type=write"]
+    )
     @Transactional
     override fun create(request: CreateOrderRequestDto): Order {
         log.debug("В метод OrderService.create получен запрос: {}", request)
@@ -36,15 +41,19 @@ class OrderServiceImpl(
             val savedOrder = orderRepository.saveAndFlush(order)
             log.debug("Заказ создан id: {}", savedOrder.id)
 
-            log.debug("Все успешно сохранено");
+            log.debug("Все успешно сохранено")
             return savedOrder
         } catch (e: Exception) {
             val cause = if (e.cause != null) e.cause else e
-            log.error("Ошибка при создание заказа {}", cause?.message);
-            throw OrderCreatedException("Order created error: ${cause?.message}");
+            log.error("Ошибка при создание заказа {}", cause?.message)
+            throw OrderCreatedException("Order created error: ${cause?.message}")
         }
     }
 
+    @BusinessMetric(
+        value = "orders.retrieve",
+        tags = ["operation=get", "type=read"]
+    )
     @Transactional(readOnly = true)
     override fun getOrderWithItems(id: Long): Order? {
         log.debug("В метод getOrderWithItems получен запрос поиска по id: {}", id)
@@ -53,7 +62,7 @@ class OrderServiceImpl(
             NotFoundOrderException("закас не найден id: $id")
         }
 
-        log.debug("Результат успешно найден");
+        log.debug("Результат успешно найден")
         return order
     }
 }
