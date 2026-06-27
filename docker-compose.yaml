@@ -86,11 +86,53 @@ services:
     networks:
       - e-commerce-network
 
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    container_name: prometheus_ecomm
+    volumes:
+      # Конфигурация Prometheus (скажем, куда ходить за метриками)
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      # Данные метрик (чтобы не терять историю при перезапуске)
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'  # Храним метрики 15 дней (production standard)
+    ports:
+      - '9090:9090'  # UI Prometheus (только для отладки)
+    depends_on:
+      order-service:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - e-commerce-network
+
+  grafana:
+    image: grafana/grafana:10.2.2
+    container_name: grafana_ecomm
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+      GF_INSTALL_PLUGINS: grafana-piechart-panel
+    ports:
+      - '3000:3000'
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    networks:
+      - e-commerce-network
+
 
 
 volumes:
   orders_postgres_data:
     name: e_comm_orders_data
+  prometheus_data:
+    name: e_comm_prometheus_data
+  grafana_data:
+    name: e_comm_grafana_data
 
 
 networks:
