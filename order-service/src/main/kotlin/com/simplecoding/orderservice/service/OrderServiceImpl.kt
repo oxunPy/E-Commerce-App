@@ -3,17 +3,22 @@ package com.simplecoding.orderservice.service
 import com.simplecoding.orderservice.domain.dto.CreateOrderRequestDto
 import com.simplecoding.orderservice.domain.entity.Order
 import com.simplecoding.orderservice.domain.entity.OrderItem
+import com.simplecoding.orderservice.domain.event.OrderCreatedEvent
 import com.simplecoding.orderservice.exception.NotFoundOrderException
 import com.simplecoding.orderservice.exception.OrderCreatedException
 import com.simplecoding.orderservice.metrics.annotation.BusinessMetric
 import com.simplecoding.orderservice.repository.OrderRepository
 import org.slf4j.LoggerFactory
+import org.slf4j.MDC
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 
 @Service
 class OrderServiceImpl(
-    private val orderRepository: OrderRepository
+    private val orderRepository: OrderRepository,
+    private val applicationEventPublisher: ApplicationEventPublisher
 ) : OrderService {
 
     private val log = LoggerFactory.getLogger(OrderServiceImpl::class.java)
@@ -41,12 +46,26 @@ class OrderServiceImpl(
             val savedOrder = orderRepository.saveAndFlush(order)
             log.debug("Заказ создан id: {}", savedOrder.id)
 
+            MDC.put("order_id", savedOrder.id.toString());
+            MDC.put("total_amount", savedOrder.getTotalPrice().toString());
+            MDC.put("status", savedOrder.status.toString());
+
+            applicationEventPublisher.publishEvent(
+                OrderCreatedEvent(
+                    orderId = savedOrder.id!!,
+                    context = MDC.getCopyOfContextMap(),
+                    timestamp = LocalDateTime.now()
+                )
+            )
+
             log.debug("Все успешно сохранено")
             return savedOrder
         } catch (e: Exception) {
             val cause = if (e.cause != null) e.cause else e
             log.error("Ошибка при создание заказа {}", cause?.message)
             throw OrderCreatedException("Order created error: ${cause?.message}")
+        } finally {
+            MDC.clear()
         }
     }
 

@@ -22,6 +22,30 @@ logging:
     com.simplecoding.orderservice: debug
 
 management:
+  otlp:
+    metrics:
+      export:
+        enabled: true
+
+  tracing:
+    sampling:
+      probability: 1.0
+    export:
+      enabled: true
+
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+        descriptions: true
+
+  metrics:
+    distribution:
+      percentiles-histogram:
+        all: true
+      slo:
+        "[http.server.requests]": 50ms,100ms,200ms,1s,2s
+
   endpoints:
     web:
       exposure:
@@ -31,6 +55,12 @@ management:
           - metrics
           - prometheus
           - loggers
+
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: http://jaeger:4318/v1/traces
 
   endpoint:
     health:
@@ -49,3 +79,7 @@ info:
     name: "E-Commerce-App(order-service)"
     version: "1.0.0"
     description: "trying to make my microservices!!!"
+
+url:
+  notification-service: ${NOTIFICATION_SERVICE_URL}
+  payment-service: ${PAYMENT_SERVICE_URL}
