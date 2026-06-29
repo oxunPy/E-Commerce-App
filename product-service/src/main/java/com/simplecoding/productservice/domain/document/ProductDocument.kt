@@ -1,0 +1,27 @@
+package com.simplecoding.productservice.domain.document
+
+import org.springframework.data.annotation.Id
+import org.springframework.data.elasticsearch.annotations.Document
+import org.springframework.data.elasticsearch.annotations.Field
+import org.springframework.data.elasticsearch.annotations.FieldType
+
+@Document(indexName = "products")
+data class ProductDocument(
+    @Id
+    val id: String,
+
+    @Field(type = FieldType.Text, analyzer = "standard")
+    val name: String,
+
+    @Field(type = FieldType.Text, analyzer = "standard")
+    val description: String?,
+
+    @Field(type = FieldType.Double)
+    val price: Double,
+
+    @Field(type = FieldType.Keyword)
+    val category: String?,
+
+    @Field(type = FieldType.Boolean)
+    val active: Boolean = true
+)

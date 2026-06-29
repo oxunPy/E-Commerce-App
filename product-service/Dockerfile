@@ -17,16 +17,16 @@ WORKDIR /app
 # Копируем gradle-файл и настройки gradle
 # Важно: сначала копируем только pom.xml, потом исходники
 # Это позволяет закэшировать слой с зависимостями
-COPY /notification-service/gradlew ./notification-service/gradlew
-COPY /notification-service/gradle ./notification-service/gradle
-COPY /notification-service/build.gradle.kts ./notification-service/build.gradle.kts
-COPY /notification-service/settings.gradle.kts ./notification-service/settings.gradle.kts
+COPY /product-service/gradlew ./product-service/gradlew
+COPY /product-service/gradle ./product-service/gradle
+COPY /product-service/build.gradle.kts ./product-service/build.gradle.kts
+COPY /product-service/settings.gradle.kts ./product-service/settings.gradle.kts
 
 # 2. Важно: предоставим скрипту gradlew права на выполнение в Linux
-RUN chmod +x ./notification-service/gradlew
+RUN chmod +x ./product-service/gradlew
 
 # Переходим в папку модуля
-WORKDIR /app/notification-service
+WORKDIR /app/product-service
 
 # Загружаем все зависимости без сборки
 # --mount=type=cache сохраняет кэш Maven между сборками (ускоряет локальные сборки)
@@ -34,7 +34,7 @@ WORKDIR /app/notification-service
 RUN --mount=type=cache,target=/root/gradle/.gradle/caches \
     ./gradlew dependencies --no-daemon || true
 
-COPY /notification-service/src ./src
+COPY /product-service/src ./src
 
 # Собираем приложение
 # clean — удаляем предыдущие артефакты
@@ -74,11 +74,11 @@ RUN addgroup -S spring && adduser -S spring -G spring
 
 # Копируем собранный jar из предыдущего этапа
 # --from=builder — берём файл из этапа "builder"
-COPY --from=builder /app/notification-service/build/libs/*.jar app.jar
+COPY --from=builder /app/product-service/build/libs/*.jar app.jar
 
 # Документируем, какой порт использует приложение
 # Не открывает порт автоматически, только информация
-EXPOSE 8083
+EXPOSE 8085
 
 # Переключаемся на непривилегированного пользователя
 # ВСЕГДА делайте это в production! Иначе приложение работает от root
@@ -88,7 +88,7 @@ USER spring:spring
 # Проверяет /actuator/health каждые 30 секунд
 # Если 3 раза подряд неудача — контейнер считается нездоровым
 HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
-  CMD curl -f http://localhost:8083/actuator/health || exit 1
+  CMD curl -f http://localhost:8085/actuator/health || exit 1
 
 
 # Точка входа — команда по умолчанию

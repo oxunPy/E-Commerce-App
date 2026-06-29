@@ -2,5 +2,34 @@ spring:
   application:
     name: product-service
 
+  elasticsearch:
+    uris: http://${ELASTIC_HOST:localhost}:${ELASTIC_PORT:9200}
+    username: ${ELASTIC_USER:admin}
+    password: ${ELASTIC_PASSWORD:admin}
+
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:5432/${POSTGRES_DB:products_db}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+          - metrics
+          - prometheus
+          - loggers
+
+
 server:
   port: 8085

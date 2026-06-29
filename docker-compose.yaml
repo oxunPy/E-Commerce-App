@@ -200,6 +200,113 @@ services:
 
     networks:
       - e-commerce-network
+
+  elasticsearch:
+    image: elasticsearch:9.0.1
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - e-commerce-network
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  products-db-postgres:
+    image: postgres:15
+    container_name: products_db_postgres
+    ports:
+      - "${PRODUCTS_POSTGRES_PORT:-5434}:5432"
+
+    environment:
+      POSTGRES_USER: ${PRODUCTS_POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${PRODUCTS_POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${PRODUCTS_POSTGRES_DB:-orders_db}
+
+    volumes:
+      - products_postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=100"
+      - "-c"
+      - "shared_buffers=256MB"      # Кэш в памяти (ускоряет запросы)
+      - "-c"
+      - "wal_level=logical"
+
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-orders_db}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+    networks:
+      - e-commerce-network
+
+  product-service:
+    build:
+      context: .
+      dockerfile: product-service/Dockerfile
+      args:
+        APP_VERSION: ${PRODUCT_SERVICE_VERSION:-1.0.0}
+    container_name: product_service
+    ports:
+      - "${PRODUCT_SERVICE_PORT:-8085}:8085"
+
+    environment:
+      ELASTIC_HOST: elasticsearch
+      ELASTIC_PORT: 9200
+      ELASTIC_USER: ${ELASTIC_USER:-admin}
+      ELASTIC_PASSWOR: ${ELASTIC_PASSWORD:-admin}
+
+      POSTGRES_HOST: ${PRODUCTS_POSTGRES_HOST}
+      POSTGRES_PORT: ${PRODUCTS_POSTGRES_PORT}
+      POSTGRES_DB: ${PRODUCTS_POSTGRES_DB}
+      POSTGRES_USER: ${PRODUCTS_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${PRODUCTS_POSTGRES_PASSWORD}
+
+
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      products-db-postgres:
+        condition: service_healthy
+      jaeger:
+        condition: service_started
+
+    restart: unless-stopped
+
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8085/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    networks:
+      - e-commerce-network
+
+
+networks:
+  e-commerce-network:
+    name: e-commerce-network
+    driver: bridge
+
+
 volumes:
   orders_postgres_data:
     name: e_comm_orders_data
@@ -208,11 +315,8 @@ volumes:
   grafana_data:
     name: e_comm_grafana_data
   notifications_mongo_data:
-    name:
-      e_comm_notifications_data
-
-
-networks:
-  e-commerce-network:
-    name: e-commerce-network
-    driver: bridge
+    name: e_comm_notifications_data
+  products_postgres_data:
+    name: e_comm_products_data
+  elasticsearch_data:
+    name: e_comm_elasticsearch_data
