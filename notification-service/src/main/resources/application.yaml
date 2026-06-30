@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    active: elk
   application:
     name: notification-service
 
@@ -15,8 +17,18 @@ spring:
     authentication-database: admin
 
 logging:
+  structured:
+    format:
+      console: ecs
+    json:
+      stacktrace:
+        max-throwable-depth: 30
+        max-length: 2048
+  pattern:
+    console: "%d{IS08601} %-5level [%thread] %X{traceId} %X{spanId} %logger{36} - %msg%n"
   level:
     root: info
+    org.hibernate.sql: DEBUG
     com.simplecoding.notificationservice: debug
 
 management:
@@ -30,6 +42,52 @@ management:
           - metrics
           - prometheus
           - loggers
+  tracing:
+    sampling:
+      probability: 1.0
+    export:
+      enabled: true
+
+  observations:
+    annotations:
+      enabled: true
+
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+        descriptions: true
+
+  metrics:
+    distribution:
+      percentiles-histogram:
+        all: true
+      slo:
+        "[http.server.requests]": 50ms,100ms,200ms,1s,2s
+
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: http://jaeger:4318/v1/traces
+
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  info:
+    env:
+      enabled: true
+    git:
+      enabled: true
+      mode: full
+
+info:
+  app:
+    name: "E-Commerce-App(notification-service)"
+    version: "1.0.0"
+    description: "xxx"
 
 server:
   port: 8083

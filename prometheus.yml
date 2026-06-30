@@ -10,3 +10,18 @@ scrape_configs:
       - labels:
           application: 'order-service'
           environment: 'production'
+
+  - job_name: "notification-service"
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['notification-service:8083']
+      - labels:
+          application: 'notification-service'
+          environment: 'production'
+
+  - job_name: 'elasticsearch'
+    static_configs:
+      - targets: [ 'elasticsearch-exporter:9114' ]
+        labels:
+          service: 'elasticsearch'
+          stack: 'elk'

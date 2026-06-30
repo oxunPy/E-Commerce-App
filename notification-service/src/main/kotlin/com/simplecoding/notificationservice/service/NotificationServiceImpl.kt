@@ -4,7 +4,9 @@ import com.simplecoding.notificationservice.domain.NotificationStatus
 import com.simplecoding.notificationservice.domain.dto.NotificationRequestDto
 import com.simplecoding.notificationservice.domain.entity.Notification
 import com.simplecoding.notificationservice.exception.NotificationCreateException
+import com.simplecoding.notificationservice.metrics.annotation.BusinessMetric
 import com.simplecoding.notificationservice.repository.NotificationRepository
+import io.micrometer.observation.annotation.Observed
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.*
@@ -21,6 +23,11 @@ class NotificationServiceImpl(
         private val log = LoggerFactory.getLogger(NotificationServiceImpl::class.java)
     }
 
+    @BusinessMetric(
+        value = "notifications.create",
+        tags = ["operation.create", "type=write"]
+    )
+    @Observed(name = "notification.creation", contextualName = "Create notification")
     override fun create(request: NotificationRequestDto): Notification {
         try {
             log.info("В метод Notification.create получен запрос : {}", request)

@@ -44,7 +44,7 @@ class Order() {
         this.status = OrderStatus.CREATED
         this.orderUuid = UUID.randomUUID().toString()
         items.forEach { item -> item.order = this }
-        this.items.addAll(this.items)
+        this.items.addAll(items)
         amount = getTotalPrice()
     }
 

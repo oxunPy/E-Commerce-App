@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    active: elk
   application:
     name: order-service
   datasource:
@@ -17,6 +19,15 @@ server:
   port: 8081
 
 logging:
+  structured:
+    format:
+      console: ecs
+    json:
+      stacktrace:
+        max-throwable-depth: 30
+        max-length: 2048
+  pattern:
+    console: "%d{IS08601} %-5level [%thread] %X{traceId} %X{spanId} %logger{36} - %msg%n"
   level:
     root: info
     com.simplecoding.orderservice: debug
@@ -25,12 +36,16 @@ management:
   otlp:
     metrics:
       export:
-        enabled: true
+        enabled: false
 
   tracing:
     sampling:
       probability: 1.0
     export:
+      enabled: true
+
+  observations:
+    annotations:
       enabled: true
 
   prometheus:
@@ -78,7 +93,7 @@ info:
   app:
     name: "E-Commerce-App(order-service)"
     version: "1.0.0"
-    description: "trying to make my microservices!!!"
+    description: "xxx"
 
 url:
   notification-service: ${NOTIFICATION_SERVICE_URL}
