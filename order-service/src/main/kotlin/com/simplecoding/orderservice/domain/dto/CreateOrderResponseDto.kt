@@ -5,7 +5,7 @@ import com.simplecoding.orderservice.domain.OrderStatus
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
-data class OrderResponseDto(
+data class CreateOrderResponseDto(
     val id: Long?,
     val amount: BigDecimal?,
     val createdAt: LocalDateTime?,
@@ -13,7 +13,7 @@ data class OrderResponseDto(
     val items: List<OrderItemResponseDto>
 ) {
     companion object {
-        fun fromOrder(order: Order?) = if (order != null) OrderResponseDto(
+        fun fromOrder(order: Order?) = if (order != null) CreateOrderResponseDto(
             id = order.id,
             amount = order.amount,
             createdAt = order.createdAt,

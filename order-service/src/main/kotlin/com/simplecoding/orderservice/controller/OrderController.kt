@@ -1,7 +1,7 @@
 package com.simplecoding.orderservice.controller
 
 import com.simplecoding.orderservice.domain.dto.CreateOrderRequestDto
-import com.simplecoding.orderservice.domain.dto.OrderResponseDto
+import com.simplecoding.orderservice.domain.dto.CreateOrderResponseDto
 import com.simplecoding.orderservice.service.OrderService
 import jakarta.validation.Valid
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,18 +20,18 @@ class OrderController {
     private lateinit var orderService: OrderService
 
     @PostMapping("/create")
-    fun createOrder(@Valid @RequestBody request: CreateOrderRequestDto): ResponseEntity<OrderResponseDto> {
+    fun createOrder(@Valid @RequestBody request: CreateOrderRequestDto): ResponseEntity<CreateOrderResponseDto> {
         return ResponseEntity.ok(
-            OrderResponseDto.fromOrder(
+            CreateOrderResponseDto.fromOrder(
                 orderService.create(request)
             )
         )
     }
 
     @GetMapping("/{id}")
-    fun getOrderById(@PathVariable("id") orderId: Long): ResponseEntity<OrderResponseDto> {
+    fun getOrderById(@PathVariable("id") orderId: Long): ResponseEntity<CreateOrderResponseDto> {
         return ResponseEntity.ok(
-            OrderResponseDto.fromOrder(
+            CreateOrderResponseDto.fromOrder(
                 orderService.getOrderWithItems(orderId)
             )
         )
