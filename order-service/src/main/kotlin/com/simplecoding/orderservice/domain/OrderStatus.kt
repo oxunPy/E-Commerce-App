@@ -1,4 +1,4 @@
-package com.simplecoding.orderservice.domain.entity
+package com.simplecoding.orderservice.domain
 
 enum class OrderStatus {
     CREATED,

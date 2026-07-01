@@ -24,7 +24,7 @@ services:
       - "wal_level=logical"
 
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-orders_db}" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${ORDERS_POSTGRES_USER:-postgres} -d ${ORDERS_POSTGRES_DB:-orders_db}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -59,15 +59,9 @@ services:
       # Для миграций и прямых запросов (если нужно внутри приложения)
       # -----------------------------------------------------------------------
       POSTGRES_HOST: ${ORDERS_POSTGRES_HOST}
-      POSTGRES_PORT: 5432
       POSTGRES_DB: ${ORDERS_POSTGRES_DB}
       POSTGRES_USER: ${ORDERS_POSTGRES_USER}
       POSTGRES_PASSWORD: ${ORDERS_POSTGRES_PASSWORD}           # Секрет!
-
-      # -----------------------------------------------------------------------
-      # JPA настройки
-      # -----------------------------------------------------------------------
-      SPRING_JPA_HIBERNATE_DDL_AUTO: ${SPRING_JPA_HIBERNATE_DDL_AUTO}  # validate в production
 
       NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_URL}
       PAYMENT_SERVICE_URL: ${PAYMENT_SERVICE_URL}
@@ -338,7 +332,7 @@ services:
     environment:
       POSTGRES_USER: ${PRODUCTS_POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${PRODUCTS_POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${PRODUCTS_POSTGRES_DB:-orders_db}
+      POSTGRES_DB: ${PRODUCTS_POSTGRES_DB:-products_db}
 
     volumes:
       - products_postgres_data:/var/lib/postgresql/data
@@ -354,7 +348,7 @@ services:
       - "wal_level=logical"
 
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-orders_db}" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${PRODUCTS_POSTGRES_USER:-postgres} -d ${PRODUCTS_POSTGRES_DB:-products_db}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -406,6 +400,75 @@ services:
     networks:
       - e-commerce-network
 
+  payments-db-postgres:
+    image: postgres:15
+    container_name: payments_db_postgres
+    ports:
+      - "${PAYMENTS_POSTGRES_PORT:-5435}:5432"
+
+    environment:
+      POSTGRES_USER: ${PAYMENTS_POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${PAYMENTS_POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${PAYMENTS_POSTGRES_DB:-payments_db}
+
+    volumes:
+      - payments_postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=100"
+      - "-c"
+      - "shared_buffers=256MB"      # Кэш в памяти (ускоряет запросы)
+      - "-c"
+      - "wal_level=logical"
+
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${PAYMENTS_POSTGRES_USER:-postgres} -d ${PAYMENTS_POSTGRES_DB:-payments_db}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+    networks:
+      - e-commerce-network
+
+  payment-service:
+    build:
+      context: .
+      dockerfile: payment-service/Dockerfile
+      args:
+        APP_VERSION: ${PAYMENT_SERVICE_VERSION:-1.0.0}
+    container_name: payment_service
+    ports:
+      - "${PAYMENT_SERVICE_PORT:-8084}:8084"
+
+    environment:
+      POSTGRES_HOST: ${PAYMENTS_POSTGRES_HOST}
+      POSTGRES_PORT: ${PAYMENTS_POSTGRES_PORT}
+      POSTGRES_DB: ${PAYMENTS_POSTGRES_DB}
+      POSTGRES_USER: ${PAYMENTS_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${PAYMENTS_POSTGRES_PASSWORD}
+
+
+    depends_on:
+      payments-db-postgres:
+        condition: service_healthy
+      jaeger:
+        condition: service_started
+
+    restart: unless-stopped
+
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8084/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    networks:
+      - e-commerce-network
 
 networks:
   e-commerce-network:
@@ -428,3 +491,5 @@ volumes:
     name: e_comm_elasticsearch_data
   elasticsearch_log_data:
     name: e_comm_elasticsearch_log_data
+  payments_postgres_data:
+    name: e_comm_payments_data

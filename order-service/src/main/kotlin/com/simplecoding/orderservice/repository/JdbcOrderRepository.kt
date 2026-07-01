@@ -2,7 +2,7 @@ package com.simplecoding.orderservice.repository
 
 import com.simplecoding.orderservice.domain.entity.Order
 import com.simplecoding.orderservice.domain.entity.OrderItem
-import com.simplecoding.orderservice.domain.entity.OrderStatus
+import com.simplecoding.orderservice.domain.OrderStatus
 import jakarta.transaction.Transactional
 import org.slf4j.LoggerFactory
 import org.springframework.jdbc.core.JdbcTemplate

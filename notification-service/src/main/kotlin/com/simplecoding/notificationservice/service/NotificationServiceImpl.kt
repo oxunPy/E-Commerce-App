@@ -60,10 +60,7 @@ class NotificationServiceImpl(
         log.info("Выпало число: {}", random)
 
         if (random < 30) {
-            log.error(
-                "Возможно проблема с отправкой информации по заказу: {}",
-                orderId
-            )
+            log.error("Возможно проблема с отправкой информации по заказу: {}", orderId)
             throw RuntimeException("Типа проблемы с отправкой уведомления")
         }
 

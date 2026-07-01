@@ -5,7 +5,7 @@ import com.simplecoding.orderservice.domain.entity.Order
 import com.simplecoding.orderservice.domain.entity.OrderItem
 import com.simplecoding.orderservice.domain.event.OrderCreatedEvent
 import com.simplecoding.orderservice.exception.NotFoundOrderException
-import com.simplecoding.orderservice.exception.OrderCreatedException
+import com.simplecoding.orderservice.exception.OrderCreateException
 import com.simplecoding.orderservice.metrics.annotation.BusinessMetric
 import com.simplecoding.orderservice.repository.OrderItemRepository
 import com.simplecoding.orderservice.repository.OrderRepository
@@ -74,7 +74,7 @@ class OrderServiceImpl(
         } catch (e: Exception) {
             val cause = if (e.cause != null) e.cause else e
             log.error("Ошибка при создание заказа {}", cause?.message)
-            throw OrderCreatedException("Order created error: ${cause?.message}")
+            throw OrderCreateException("Order created error: ${cause?.message}")
         } finally {
             MDC.clear()
         }
