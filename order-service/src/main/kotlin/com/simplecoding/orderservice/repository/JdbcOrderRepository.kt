@@ -44,7 +44,7 @@ class JdbcOrderRepository(
     private val orderItemRowMapper: RowMapper<OrderItem?> = RowMapper { rs: ResultSet?, rowNum: Int ->
         val item = OrderItem()
         item.id = rs!!.getLong("id")
-        item.productId = rs.getLong("product_id")
+        item.productId = rs.getString("product_id")
         item.productName = rs.getString("product_name")
         item.quantity = rs.getInt("quantity")
         item.price = rs.getBigDecimal("price")

@@ -30,16 +30,18 @@ class InventoryReservation() {
     var expiresAt: LocalDateTime? = null
 
     @Column(name = "created_at", nullable = false)
-    var createdAt: LocalDateTime? = null
+    var createdAt: LocalDateTime = LocalDateTime.now()
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "inventory_id", nullable = false)
     var inventory: Inventory? = null
 
-    constructor(productId: String, quantity: Int, inventory: Inventory): this() {
+    constructor(productId: String, quantity: Int, inventory: Inventory, orderId: Long): this() {
         this.productId = productId
         this.quantity = quantity
         this.inventory = inventory
+        this.orderId = orderId
+        this.expiresAt = LocalDateTime.now().plusMinutes(2);
     }
 
     enum class ReservationStatus {

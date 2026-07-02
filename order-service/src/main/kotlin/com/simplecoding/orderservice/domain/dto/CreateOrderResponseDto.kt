@@ -31,7 +31,7 @@ data class CreateOrderResponseDto(
     }
 
     data class OrderItemResponseDto(
-        val productId: Long?,
+        val productId: String?,
         val productName: String?,
         val quantity: Int?,
         val price: BigDecimal?,

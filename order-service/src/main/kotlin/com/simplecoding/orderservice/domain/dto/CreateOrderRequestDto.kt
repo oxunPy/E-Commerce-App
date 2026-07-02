@@ -12,8 +12,8 @@ data class CreateOrderRequestDto(
     @NotEmpty val items: List<OrderItemRequest>
 ) {
     data class OrderItemRequest (
-        @NotNull(message = "productId не должен быть пустим")
-        var productId: Long?,
+        @NotBlank(message = "productId не должен быть пустим")
+        var productId: String?,
 
         @NotBlank(message = "productName не должен быть пустим")
         val productName: String,

@@ -8,12 +8,23 @@ spring:
     password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: 6379
+      password: ${REDIS_PASSWORD}
+
   jpa:
     open-in-view: false
     show-sql: true
     hibernate:
       ddl-auto: update
 
+logging:
+  level:
+    root: info
+    com.simplecoding.inventoryservice: debug
+    org.hibernate.sql: debug
 
 
 server:

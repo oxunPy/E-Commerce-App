@@ -56,9 +56,9 @@ class OrderServiceImpl(
             val savedOrder = orderRepository.saveAndFlush(order)
             log.debug("Заказ создан id: {}", savedOrder.id)
 
-            MDC.put("order_id", savedOrder.id.toString());
-            MDC.put("total_amount", savedOrder.getTotalPrice().toString());
-            MDC.put("status", savedOrder.status.toString());
+            MDC.put("order_id", savedOrder.id.toString())
+            MDC.put("total_amount", savedOrder.getTotalPrice().toString())
+            MDC.put("status", savedOrder.status.toString())
 
             applicationEventPublisher.publishEvent(
                 OrderCreatedEvent(
@@ -68,7 +68,7 @@ class OrderServiceImpl(
                 )
             )
 
-            Span.current().setAttribute("order.id", savedOrder.id.toString());
+            Span.current().setAttribute("order.id", savedOrder.id.toString())
             log.debug("Все успешно сохранено")
             return savedOrder
         } catch (e: Exception) {
@@ -100,16 +100,16 @@ class OrderServiceImpl(
         if (failureMode.get()) {
             val randomInt = random.nextInt(100)
 
-            log.debug("Выпало число: {}", randomInt);
+            log.debug("Выпало число: {}", randomInt)
 
             if (randomInt < 30) {
-                log.error("Возникли проблемы с обработкой сохранения заказа");
-                throw RuntimeException("Типа проблемы с обработкой заказа");
+                log.error("Возникли проблемы с обработкой сохранения заказа")
+                throw RuntimeException("Типа проблемы с обработкой заказа")
             }
 
             if (randomInt > 70) {
-                log.warn("OrderService замедлился");
-                Thread.sleep(200);
+                log.warn("OrderService замедлился")
+                Thread.sleep(200)
             }
         }
     }

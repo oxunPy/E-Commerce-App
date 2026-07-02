@@ -6,10 +6,12 @@ import com.simplecoding.inventoryservice.domain.dto.CompleteReservationRequestDt
 import com.simplecoding.inventoryservice.domain.dto.CompleteReservationResponseDto
 import com.simplecoding.inventoryservice.domain.dto.CreateInventoryRequestDto
 import com.simplecoding.inventoryservice.domain.dto.CreateInventoryResponseDto
+import com.simplecoding.inventoryservice.domain.dto.InventoryDto
 import com.simplecoding.inventoryservice.domain.dto.InventoryReservationDto
 import com.simplecoding.inventoryservice.domain.dto.ReserveProductRequestDto
 import com.simplecoding.inventoryservice.service.InventoryService
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -25,30 +27,33 @@ class InventoryController(
     @PostMapping("/create")
     fun createInventory(@RequestBody request: CreateInventoryRequestDto): ResponseEntity<CreateInventoryResponseDto> {
         return ResponseEntity.ok(
-            CreateInventoryResponseDto.fromInventory(
-                inventoryService.create(request)
-            )
+            inventoryService.create(request)
+        )
+    }
+
+    @GetMapping("/list")
+    fun getInventoryList(): ResponseEntity<List<InventoryDto>> {
+        return ResponseEntity.ok(
+            inventoryService.getInventoryList()
         )
     }
 
     @PostMapping("/reserve")
     fun reserveProduct(@RequestBody request: ReserveProductRequestDto): ResponseEntity<InventoryReservationDto> {
         return ResponseEntity.ok(
-            InventoryReservationDto.fromInventoryReservation(
-                inventoryService.reserve(request)
-            )
+            inventoryService.reserve(request)
         )
     }
 
     @PutMapping("/reserve/complete")
-    fun completeReservation(@RequestBody request: CompleteReservationRequestDto) : ResponseEntity<CompleteReservationResponseDto> {
+    fun completeReservation(@RequestBody request: CompleteReservationRequestDto): ResponseEntity<CompleteReservationResponseDto> {
         return ResponseEntity.ok(
             inventoryService.completeReserve(request)
         )
     }
 
     @PutMapping("/reserve/cancel")
-    fun cancelReservation(@RequestBody request: CancelReservationRequestDto) : ResponseEntity<CancelReservationResponseDto> {
+    fun cancelReservation(@RequestBody request: CancelReservationRequestDto): ResponseEntity<CancelReservationResponseDto> {
         return ResponseEntity.ok(
             inventoryService.cancelReservation(request)
         )

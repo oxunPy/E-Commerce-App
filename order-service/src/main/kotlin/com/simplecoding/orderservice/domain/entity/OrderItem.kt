@@ -19,7 +19,7 @@ class OrderItem() {
     var id: Long? = null
 
     @Column(name = "product_id", nullable = false)
-    var productId: Long? = null
+    var productId: String? = null
 
     @Column(name = "product_name", nullable = false)
     var productName: String? = null
@@ -35,7 +35,7 @@ class OrderItem() {
     var order: Order? = null
 
     constructor(
-        productId: Long?,
+        productId: String?,
         productName: String?,
         quantity: Int?,
         price: BigDecimal?,
