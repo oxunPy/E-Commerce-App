@@ -556,6 +556,21 @@ services:
     networks:
       - e-commerce-network
 
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
+      args:
+        APP_VERSION: 1.0.0
+
+    ports:
+      - "8080:8080"
+    container_name: api_gateway
+
+    restart: unless-stopped
+    networks:
+      - e-commerce-network
+
 networks:
   e-commerce-network:
     name: e-commerce-network
