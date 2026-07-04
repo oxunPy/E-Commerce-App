@@ -88,6 +88,10 @@ management:
       enabled: true
       mode: full
 
+url:
+  order-service: ${ORDER_SERVICE_URL}
+  inventory-service: ${INVENTORY_SERVICE_URL}
+
 info:
   app:
     name: "E-Commerce-App(payment-service)"

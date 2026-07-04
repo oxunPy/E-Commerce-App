@@ -98,3 +98,4 @@ info:
 url:
   notification-service: ${NOTIFICATION_SERVICE_URL}
   payment-service: ${PAYMENT_SERVICE_URL}
+  inventory-service: ${INVENTORY_SERVICE_URL}

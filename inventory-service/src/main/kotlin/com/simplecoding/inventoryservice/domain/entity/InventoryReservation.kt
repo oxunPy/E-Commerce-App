@@ -41,12 +41,6 @@ class InventoryReservation() {
         this.quantity = quantity
         this.inventory = inventory
         this.orderId = orderId
-        this.expiresAt = LocalDateTime.now().plusMinutes(2);
-    }
-
-    enum class ReservationStatus {
-        PENDING,
-        COMPLETED,
-        CANCELLED
+        this.expiresAt = LocalDateTime.now().plusMinutes(5)
     }
 }

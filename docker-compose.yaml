@@ -65,6 +65,7 @@ services:
 
       NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_URL}
       PAYMENT_SERVICE_URL: ${PAYMENT_SERVICE_URL}
+      INVENTORY_SERVICE_URL: ${INVENTORY_SERVICE_URL}
     depends_on:
       orders-db-postgres:
         condition: service_healthy
@@ -449,6 +450,8 @@ services:
       POSTGRES_USER: ${PAYMENTS_POSTGRES_USER}
       POSTGRES_PASSWORD: ${PAYMENTS_POSTGRES_PASSWORD}
 
+      ORDER_SERVICE_URL: ${ORDER_SERVICE_URL}
+      INVENTORY_SERVICE_URL: ${INVENTORY_SERVICE_URL}
 
     depends_on:
       payments-db-postgres:

@@ -20,4 +20,7 @@ data class PaymentResponseDto(
 
     @JsonProperty("amount")
     val amount: BigDecimal?,
+
+    @JsonProperty("checkout_url")
+    val checkoutUrl: String?,
 )

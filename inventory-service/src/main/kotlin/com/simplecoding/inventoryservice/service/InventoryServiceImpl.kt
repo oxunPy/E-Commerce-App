@@ -7,11 +7,12 @@ import com.simplecoding.inventoryservice.domain.dto.CompleteReservationResponseD
 import com.simplecoding.inventoryservice.domain.dto.CreateInventoryRequestDto
 import com.simplecoding.inventoryservice.domain.dto.CreateInventoryResponseDto
 import com.simplecoding.inventoryservice.domain.dto.InventoryDto
-import com.simplecoding.inventoryservice.domain.dto.InventoryReservationDto
-import com.simplecoding.inventoryservice.domain.dto.ReserveProductRequestDto
+import com.simplecoding.inventoryservice.domain.dto.InventoryReservationResponseDto
+import com.simplecoding.inventoryservice.domain.dto.InventoryReservationRequestDto
 import com.simplecoding.inventoryservice.domain.entity.Inventory
 import com.simplecoding.inventoryservice.domain.entity.InventoryHistory
 import com.simplecoding.inventoryservice.domain.entity.InventoryReservation
+import com.simplecoding.inventoryservice.exception.CancelReservationException
 import com.simplecoding.inventoryservice.exception.NotEnoughItemException
 import com.simplecoding.inventoryservice.exception.NotFoundException
 import com.simplecoding.inventoryservice.exception.ReserveProductException
@@ -72,7 +73,7 @@ class InventoryServiceImpl(
         return CreateInventoryResponseDto.fromInventory(inventory)
     }
 
-    override fun reserve(request: ReserveProductRequestDto): InventoryReservationDto {
+    override fun reserve(request: InventoryReservationRequestDto): InventoryReservationResponseDto {
         try {
             log.debug("В метод InventoryService.reserve получен запрос: {}", request)
             runFail()
@@ -97,10 +98,10 @@ class InventoryServiceImpl(
             redisTemplate.opsForValue().set(
                 "reservation:expire:${reservation.id}",
                 reservation.id.toString(),
-                Duration.ofMinutes(2)
+                Duration.ofMinutes(5)
             )
 
-            return InventoryReservationDto.fromInventoryReservation(reservation)
+            return InventoryReservationResponseDto.fromInventoryReservation(reservation)
         } catch (e: Exception) {
             val cause = e.cause ?: e
             log.error("Ошибка возникла при резервирование продукта: {}", cause.message)
@@ -108,19 +109,72 @@ class InventoryServiceImpl(
         }
     }
 
+    @Transactional
     override fun completeReserve(request: CompleteReservationRequestDto): CompleteReservationResponseDto {
-        throw NotImplementedError()
+        try {
+            val reservations = inventoryReservationRepository.findAllByOrderId(
+                request.orderId!!
+            )
+
+            if (reservations
+                .any { it.expiresAt!!.isBefore(LocalDateTime.now()) }) {
+                throw RuntimeException("Reservation product timeout")
+            }
+
+            reservations.forEach { reservation ->
+                redisTemplate.opsForValue().getAndExpire("reservation:expire:${reservation.id}", Duration.ofSeconds(3))
+                val inventory = inventoryRepository.findByProductId(reservation.productId!!).orElseThrow {
+                    NotFoundException("Inventory not found at product id: ${reservation.productId}")
+                }
+
+                if (inventory.quantity < reservation.quantity) {
+                    throw RuntimeException("Inventory quantity less: ${inventory.quantity} < ${reservation.quantity}")
+                }
+
+                inventory.quantity -= reservation.quantity
+                inventoryRepository.save(inventory)
+            }
+
+            return CompleteReservationResponseDto(
+                orderId = request.orderId,
+                success = true,
+                message = "Order reservation completed successfully!"
+            )
+        } catch (e: Exception) {
+            val cause = e.cause ?: e
+            log.error("Ошибка при завершение резервации", cause)
+            throw ReserveProductException("Failed to reserve product: ${cause.message}")
+        }
     }
 
     override fun cancelReservation(request: CancelReservationRequestDto): CancelReservationResponseDto {
-        throw NotImplementedError()
+        try {
+            val reservations = inventoryReservationRepository.findAllByOrderId(
+                request.orderId!!
+            )
+
+            reservations.forEach { reservation ->
+                redisTemplate.opsForValue().getAndExpire("reservation:expire:${reservation.id}", Duration.ofSeconds(3))
+            }
+
+            return CancelReservationResponseDto(
+                orderId = request.orderId,
+                success = true,
+                message = "Order reservataions cancelled",
+            )
+
+        } catch (e: Exception) {
+            val cause = e.cause ?: e
+            log.error("Ошибка при отменение резервации", cause)
+            throw CancelReservationException("Failed to cancel reservation: ${cause.message}")
+        }
     }
 
     override fun getInventoryList(): List<InventoryDto> {
         return inventoryRepository.findAll().map { InventoryDto.fromInventory(it) }
     }
 
-    fun Inventory.getActualQuantity(): Int {
+    private fun Inventory.getActualQuantity(): Int {
         val now = LocalDateTime.now()
         val reservations = inventoryReservationRepository.findAllByInventoryId(this.id!!)
         val reservedQuantity = reservations

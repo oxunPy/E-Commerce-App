@@ -9,14 +9,21 @@ import java.time.LocalDateTime
 data class CreatePaymentResponseDto(
     @JsonProperty("payment_id")
     val paymentId: Long?,
+
     @JsonProperty("order_id")
     val orderId: Long?,
+
     @JsonProperty("status")
     val status: PaymentStatus,
+
     @JsonProperty("created_at")
     val createdAt: LocalDateTime,
+
     @JsonProperty("amount")
     val amount: BigDecimal?,
+
+    @JsonProperty("checkout_url")
+    val checkoutUrl: String?,
 ) {
     companion object {
         fun createFromPayment(payment: Payment): CreatePaymentResponseDto {
@@ -26,6 +33,7 @@ data class CreatePaymentResponseDto(
                 status = payment.status,
                 createdAt = payment.createdAt,
                 amount = payment.amount,
+                checkoutUrl = "/api/v1/payments/checkout/${payment.id}",
             )
         }
     }

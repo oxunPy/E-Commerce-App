@@ -7,14 +7,13 @@ import com.simplecoding.inventoryservice.domain.dto.CompleteReservationResponseD
 import com.simplecoding.inventoryservice.domain.dto.CreateInventoryRequestDto
 import com.simplecoding.inventoryservice.domain.dto.CreateInventoryResponseDto
 import com.simplecoding.inventoryservice.domain.dto.InventoryDto
-import com.simplecoding.inventoryservice.domain.dto.InventoryReservationDto
-import com.simplecoding.inventoryservice.domain.dto.ReserveProductRequestDto
-import com.simplecoding.inventoryservice.domain.entity.Inventory
+import com.simplecoding.inventoryservice.domain.dto.InventoryReservationResponseDto
+import com.simplecoding.inventoryservice.domain.dto.InventoryReservationRequestDto
 
 interface InventoryService {
     fun create(request: CreateInventoryRequestDto): CreateInventoryResponseDto
 
-    fun reserve(request: ReserveProductRequestDto): InventoryReservationDto
+    fun reserve(request: InventoryReservationRequestDto): InventoryReservationResponseDto
 
     fun completeReserve(request: CompleteReservationRequestDto): CompleteReservationResponseDto
 

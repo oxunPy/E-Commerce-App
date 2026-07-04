@@ -31,7 +31,7 @@ class Payment() {
     var amount: BigDecimal? = null
 
     @CreatedDate
-    @Column(name = "created_at", columnDefinition = "datetime DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "created_at", columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP")
     var createdAt: LocalDateTime = LocalDateTime.now()
 
     constructor(orderId: Long, amount: BigDecimal) : this() {

@@ -7,8 +7,8 @@ import com.simplecoding.inventoryservice.domain.dto.CompleteReservationResponseD
 import com.simplecoding.inventoryservice.domain.dto.CreateInventoryRequestDto
 import com.simplecoding.inventoryservice.domain.dto.CreateInventoryResponseDto
 import com.simplecoding.inventoryservice.domain.dto.InventoryDto
-import com.simplecoding.inventoryservice.domain.dto.InventoryReservationDto
-import com.simplecoding.inventoryservice.domain.dto.ReserveProductRequestDto
+import com.simplecoding.inventoryservice.domain.dto.InventoryReservationResponseDto
+import com.simplecoding.inventoryservice.domain.dto.InventoryReservationRequestDto
 import com.simplecoding.inventoryservice.service.InventoryService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -39,7 +39,7 @@ class InventoryController(
     }
 
     @PostMapping("/reserve")
-    fun reserveProduct(@RequestBody request: ReserveProductRequestDto): ResponseEntity<InventoryReservationDto> {
+    fun reserveProduct(@RequestBody request: InventoryReservationRequestDto): ResponseEntity<InventoryReservationResponseDto> {
         return ResponseEntity.ok(
             inventoryService.reserve(request)
         )

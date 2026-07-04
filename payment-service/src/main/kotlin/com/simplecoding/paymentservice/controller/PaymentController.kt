@@ -1,5 +1,7 @@
 package com.simplecoding.paymentservice.controller
 
+import com.simplecoding.paymentservice.domain.dto.CheckoutPaymentRequestDto
+import com.simplecoding.paymentservice.domain.dto.CheckoutPaymentResponseDto
 import com.simplecoding.paymentservice.domain.dto.CreatePaymentRequestDto
 import com.simplecoding.paymentservice.domain.dto.CreatePaymentResponseDto
 import com.simplecoding.paymentservice.service.PaymentService
@@ -21,5 +23,12 @@ class PaymentController(
         return ResponseEntity.ok(CreatePaymentResponseDto.createFromPayment(
             paymentService.create(request)
         ))
+    }
+
+    @PostMapping("/checkout")
+    fun checkout(@RequestBody @Valid request: CheckoutPaymentRequestDto): ResponseEntity<CheckoutPaymentResponseDto> {
+        return ResponseEntity.ok(
+            paymentService.checkout(request)
+        )
     }
 }

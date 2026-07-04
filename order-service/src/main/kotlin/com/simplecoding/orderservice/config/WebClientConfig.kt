@@ -14,6 +14,8 @@ class WebClientConfig {
     @Value($$"${url.payment-service}")
     private lateinit var paymentServiceUrl: String
 
+    @Value($$"${url.inventory-service}")
+    private lateinit var inventoryServiceUrl: String
 
     @Bean
     fun webClientBuilder(observationRegistry: ObservationRegistry) =
@@ -28,5 +30,10 @@ class WebClientConfig {
     @Bean
     fun paymentWebClient(builder: WebClient.Builder): WebClient {
         return builder.baseUrl(paymentServiceUrl).build()
+    }
+
+    @Bean
+    fun inventoryWebClient(builder: WebClient.Builder): WebClient {
+        return builder.baseUrl(inventoryServiceUrl).build()
     }
 }

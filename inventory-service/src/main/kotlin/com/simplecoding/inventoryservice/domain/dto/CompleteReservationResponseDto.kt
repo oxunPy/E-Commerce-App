@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 data class CompleteReservationResponseDto(
     @JsonProperty("order_id")
-    val orderId: Long,
+    val orderId: Long?,
 
     @JsonProperty("success")
     val success: Boolean,

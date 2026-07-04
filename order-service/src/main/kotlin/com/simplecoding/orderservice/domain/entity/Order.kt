@@ -41,6 +41,9 @@ class Order() {
     @OneToMany(mappedBy = "order", cascade = [CascadeType.ALL], orphanRemoval = true)
     var items: MutableList<OrderItem> = mutableListOf()
 
+    @Column(name = "checkout_url")
+    var checkoutUrl: String? = null
+
     constructor(items: List<OrderItem>) : this() {
         this.status = OrderStatus.CREATED
         this.orderUuid = UUID.randomUUID().toString()

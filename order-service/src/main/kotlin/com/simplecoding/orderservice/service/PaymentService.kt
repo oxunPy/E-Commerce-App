@@ -1,7 +1,9 @@
 package com.simplecoding.orderservice.service
 
-import org.springframework.stereotype.Service
+import com.simplecoding.orderservice.domain.dto.PaymentResponseDto
+import java.math.BigDecimal
+import java.util.concurrent.CompletableFuture
 
-@Service
-class PaymentService {
+interface PaymentService {
+    fun processPayment(orderId: Long, amount: BigDecimal): CompletableFuture<PaymentResponseDto?>
 }

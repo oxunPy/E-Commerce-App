@@ -1,16 +1,29 @@
 package com.simplecoding.orderservice.domain.dto
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.simplecoding.orderservice.domain.entity.Order
 import com.simplecoding.orderservice.domain.OrderStatus
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
 data class CreateOrderResponseDto(
+    @JsonProperty("id")
     val id: Long?,
+
+    @JsonProperty("amount")
     val amount: BigDecimal?,
+
+    @JsonProperty("created_at")
     val createdAt: LocalDateTime?,
+
+    @JsonProperty("status")
     val status: OrderStatus?,
-    val items: List<OrderItemResponseDto>
+
+    @JsonProperty("items")
+    val items: List<OrderItemResponseDto>,
+
+    @JsonProperty("checkout_url")
+    val checkoutUrl: String?,
 ) {
     companion object {
         fun fromOrder(order: Order?) = if (order != null) CreateOrderResponseDto(
@@ -26,7 +39,8 @@ data class CreateOrderResponseDto(
                     price = it.price,
                     itemTotal = (it.price ?: BigDecimal.ZERO).multiply(BigDecimal(it.quantity ?: 0))
                 )
-            }
+            },
+            checkoutUrl = order.checkoutUrl,
         ) else null
     }
 
