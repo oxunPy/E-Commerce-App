@@ -19,6 +19,30 @@ scrape_configs:
           application: 'notification-service'
           environment: 'production'
 
+  - job_name: "inventory-service"
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['inventory-service:8082']
+      - labels:
+          application: 'inventory-service'
+          environment: 'production'
+
+  - job_name: "payment-service"
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['payment-service:8084']
+      - labels:
+          application: 'payment-service'
+          environment: 'production'
+
+  - job_name: "product-service"
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['product-service:8085']
+      - labels:
+          application: 'product-service'
+          environment: 'production'
+
   - job_name: 'elasticsearch'
     static_configs:
       - targets: [ 'elasticsearch-exporter:9114' ]

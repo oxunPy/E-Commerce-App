@@ -10,7 +10,116 @@ spring:
       server:
         webflux:
           routes:
+            - id: inventory-service-route
+              uri: http://inventory-service:8082
+              predicates:
+                - Path=/api/v1/inventory/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: inventoryServiceCircuitBreaker
+                    fallbackUri: forward:/fallback/inventory-fallback
+
+            - id: notification-service-route
+              uri: http://notification-service:8083
+              predicates:
+                - Path=/api/v1/notifications/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: notificationServiceCircuitBreaker
+                    fallbackUri: forward:/fallback/notification-fallback
+
             - id: order-service-route
               uri: http://order-service:8081
               predicates:
                 - Path=/api/v1/orders/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: orderServiceCircuitBreaker
+                    fallbackUri: forward:/fallback/order-fallback
+
+            - id: payment-service-route
+              uri: http://payment-service:8084
+              predicates:
+                - Path=/api/v1/payments/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: paymentServiceCircuitBreaker
+                    fallbackUri: forward:/fallback/payment-fallback
+
+            - id: product-service-route
+              uri: http://product-service:8085
+              predicates:
+                - Path=/api/v1/products/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: productServiceCircuitBreaker
+                    fallbackUri: forward:/fallback/product-fallback
+
+logging:
+  level:
+    io.github.resilience4j: debug
+    org.springframework.cloud.gateway: debug
+
+
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      sliding-window-size: 10
+      minimum-number-of-calls: 5
+      permitted-number-of-calls-in-half-open-state: 3
+      automatic-transition-from-open-to-half-open-enabled: true
+      wait-duration-in-open-state: 5s
+      failure-rate-threshold: 50
+      event-consumer-buffer-size: 10
+      slow-call-duration-threshold: 200ms
+      slow-call-rate-threshold: 50
+      record-exceptions:
+        - org.springframework.web.client.HttpServerErrorException
+        - java.io.IOException
+      ignore-exceptions:
+        - java.lang.IllegalStateException
+      record-failure-predicate: com.simplecoding.apigateway.HttpInternalServicePredicate
+
+    shared:
+      sliding-window-size: 100
+      permitted-number-of-calls-in-half-open-state: 30
+      wait-duration-in-open-state: 1s
+      failure-rate-threshold: 50
+      event-consumer-buffer-size: 10
+      ignore-exceptions:
+        - java.lang.IllegalStateException
+
+  instances:
+    inventoryServiceCircuitBreaker:
+      base-config: default
+    notificationServiceCircuitBreaker:
+      base-config: default
+    orderServiceCircuitBreaker:
+      base-config: default
+    paymentServiceCircuitBreaker:
+      base-config: default
+    productServiceCircuitBreaker:
+      base-config: default
+
+resilience4j.timelimiter:
+  time-limiter-aspect-order: 398
+  configs:
+    default:
+      timeout-duration: 3s
+      cancel-running-future: false
+  instances:
+    inventoryServiceCircuitBreaker:
+      base-config: default
+    notificationServiceCircuitBreaker:
+      base-config: default
+    orderServiceCircuitBreaker:
+      base-config: default
+    paymentServiceCircuitBreaker:
+      base-config: default
+    productServiceCircuitBreaker:
+      base-config: default

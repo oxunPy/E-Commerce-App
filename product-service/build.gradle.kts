@@ -29,6 +29,8 @@ dependencies {
     implementation("io.micrometer:micrometer-tracing-bridge-brave")
     implementation("org.springframework.boot:spring-boot-starter-opentelemetry")
     implementation("org.projectlombok:lombok")
+    implementation("net.logstash.logback:logstash-logback-encoder:7.4")
+    implementation("org.springframework.boot:spring-boot-starter-aop:4.0.0-M2")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     runtimeOnly("org.postgresql:postgresql")
 

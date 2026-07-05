@@ -28,9 +28,15 @@ dependencies {
     implementation("org.projectlombok:lombok")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    implementation("io.micrometer:micrometer-tracing-bridge-brave")
+    implementation("net.logstash.logback:logstash-logback-encoder:7.4")
+    implementation("org.springframework.boot:spring-boot-starter-aop:4.0.0-M2")
+    implementation("org.springframework.boot:spring-boot-starter-opentelemetry")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     runtimeOnly("org.postgresql:postgresql")
+    runtimeOnly("io.micrometer:micrometer-registry-prometheus")
+    runtimeOnly("io.micrometer:micrometer-registry-otlp")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

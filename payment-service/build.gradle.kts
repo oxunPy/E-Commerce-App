@@ -4,6 +4,7 @@ plugins {
     id("org.springframework.boot") version "4.1.0"
     id("io.spring.dependency-management") version "1.1.7"
 }
+val springCloudVersion by extra("2025.1.2")
 
 group = "com.simplecoding"
 version = "0.0.1-SNAPSHOT"
@@ -30,6 +31,9 @@ dependencies {
     implementation("io.micrometer:micrometer-tracing-bridge-brave")
     implementation("org.springframework.boot:spring-boot-starter-opentelemetry")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("net.logstash.logback:logstash-logback-encoder:7.4")
+    implementation("org.springframework.boot:spring-boot-starter-aop:4.0.0-M2")
+    implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("io.projectreactor:reactor-test")
@@ -42,6 +46,11 @@ dependencies {
 kotlin {
     compilerOptions {
         freeCompilerArgs.addAll("-Xjsr305=strict", "-Xannotation-default-target=param-property")
+    }
+}
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion")
     }
 }
 

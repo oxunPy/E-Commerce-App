@@ -21,11 +21,81 @@ spring:
       ddl-auto: update
 
 logging:
+  structured:
+    format:
+      console: ecs
+    json:
+      stacktrace:
+        max-length: 2048
+        max-throwable-depth: 30
   level:
     root: info
     com.simplecoding.inventoryservice: debug
     org.hibernate.sql: debug
 
+management:
+  otlp:
+    metrics:
+      export:
+        enabled: false
+
+  tracing:
+    sampling:
+      probability: 1.0
+    export:
+      enabled: true
+
+  observations:
+    annotations:
+      enabled: true
+
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+        descriptions: true
+
+  metrics:
+    distribution:
+      percentiles-histogram:
+        all: true
+      slo:
+        "[http.server.requests]": 50ms,100ms,200ms,1s,2s
+
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+          - metrics
+          - prometheus
+          - loggers
+
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: http://jaeger:4318/v1/traces
+
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+
+  info:
+    env:
+      enabled: true
+    git:
+      enabled: true
+      mode: full
+
+info:
+  app:
+    name: "E-Commerce-App(inventory-service)"
+    version: "1.0.0"
+    description: "xxx"
 
 server:
   port: 8082

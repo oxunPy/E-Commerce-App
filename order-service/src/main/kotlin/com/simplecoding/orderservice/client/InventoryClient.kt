@@ -23,14 +23,6 @@ class InventoryClient(
             .bodyToMono(InventoryReservationResponseDto::class.java)
     }
 
-    fun reserveComplete(orderId: Long): Mono<CompleteReservationResponseDto> {
-        return inventoryWebClient.put()
-            .uri("/api/v1/inventory/reserve/")
-            .bodyValue(CompleteReservationRequestDto(orderId = orderId))
-            .retrieve()
-            .bodyToMono(CompleteReservationResponseDto::class.java)
-    }
-
     fun reserveCancel(orderId: Long): Mono<CancelReservationResponseDto> {
         return inventoryWebClient.put()
             .uri("/api/v1/inventory/reserve/cancel")

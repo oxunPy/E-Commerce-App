@@ -16,6 +16,9 @@ import com.simplecoding.orderservice.exception.OrderCreateException
 import com.simplecoding.orderservice.metrics.annotation.BusinessMetric
 import com.simplecoding.orderservice.repository.OrderItemRepository
 import com.simplecoding.orderservice.repository.OrderRepository
+import com.simplecoding.orderservice.usecase.CancelReservedProductUseCase
+import com.simplecoding.orderservice.usecase.ProcessPaymentUseCase
+import com.simplecoding.orderservice.usecase.ReserveProductUseCase
 import io.micrometer.observation.annotation.Observed
 import io.opentelemetry.api.trace.Span
 import org.slf4j.LoggerFactory
@@ -31,11 +34,10 @@ import java.util.Random
 class OrderServiceImpl(
     private val orderRepository: OrderRepository,
     private val orderItemRepository: OrderItemRepository,
-    private val inventoryService: InventoryService,
-    private val paymentService: PaymentService,
+    private val reserveProductUseCase: ReserveProductUseCase,
+    private val cancelReservedProductUseCase: CancelReservedProductUseCase,
+    private val processPaymentUseCase: ProcessPaymentUseCase,
     private val applicationEventPublisher: ApplicationEventPublisher,
-    service: InventoryService,
-    paymentService1: PaymentService
 ) : OrderService {
     private val failureMode = AtomicBoolean(true)
     private val random = Random()
@@ -81,7 +83,7 @@ class OrderServiceImpl(
 
             // reserving item products
             order.items.forEach { item ->
-                inventoryService.reserveProduct(item.productId!!, order.id!!, item.quantity!!)
+                reserveProductUseCase.reserveProduct(item.productId!!, order.id!!, item.quantity!!)
                     .whenCompleteAsync { value, error ->
                         if (error != null) {
                             throw RuntimeException("failed to reserve product", error)
@@ -92,7 +94,7 @@ class OrderServiceImpl(
             }
 
             // payment pending
-            val paymentResponse = paymentService.processPayment(order.id!!, order.getTotalPrice()).get()
+            val paymentResponse = processPaymentUseCase.processPayment(order.id!!, order.getTotalPrice()).get()
             if (paymentResponse != null) {
                 order.checkoutUrl = paymentResponse.checkoutUrl
                 orderRepository.save(order)
@@ -147,7 +149,7 @@ class OrderServiceImpl(
                 NotFoundOrderException("Order not found")
             }
 
-            inventoryService.reserveCancel(order.id!!)
+            cancelReservedProductUseCase.cancelReservedProduct(order.id!!)
                 .whenCompleteAsync { value, error ->
                     if (error != null) {
                         throw RuntimeException("failed to reserve cancel order", error)

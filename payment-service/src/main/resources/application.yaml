@@ -1,6 +1,10 @@
 spring:
   application:
     name: payment-service
+
+  profiles:
+    active: elk
+
   datasource:
     url: jdbc:postgresql://${POSTGRES_HOST:localhost}:5432/${POSTGRES_DB}
     username: ${POSTGRES_USER}
@@ -91,6 +95,97 @@ management:
 url:
   order-service: ${ORDER_SERVICE_URL}
   inventory-service: ${INVENTORY_SERVICE_URL}
+
+resilience4j:
+  retry:
+    retry-aspect-order: 2
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration: 200ms
+        exponential-backoff-multiplier: 2.0
+        exponential-max-wait-duration: 10s
+        randomized-wait-factor: 0.3
+        retry-exceptions:
+          - org.springframework.web.reactive.function.client.WebClientResponseException
+          - com.simplecoding.paymentservice.exception.ReservationCompleteFailedException
+        ignore-exceptions:
+          - java.lang.IllegalArgumentException
+          - java.lang.IllegalStateException
+          - io.github.resilience4j.circuitbreaker.CallNotPermittedException
+
+    instances:
+      orderService:
+        base-config: default
+        max-attempts: 4
+
+      inventoryService:
+        base-config: default
+        max-attempts: 3
+
+  circuitbreaker:
+    circuit-breaker-aspect-order: 1
+    configs:
+      default:
+        sliding-window-type: count_based
+        sliding-window-size: 20
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+    instances:
+      orderService:
+        base-config: default
+        sliding-window-size: 10
+        failure-rate-threshold: 40
+        minimum-number-of-calls: 10
+        record-exceptions:
+          - org.springframework.web.reactive.function.client.WebClientResponseException
+          - com.simplecoding.paymentservice.exception.OrderConfirmationFailedException
+        ignore-exceptions:
+          - java.lang.IllegalStateException
+          - java.lang.IllegalArgumentException
+
+      inventoryService:
+        base-config: default
+        sliding-window-size: 10
+        failure-rate-threshold: 40
+        minimum-number-of-calls: 10
+        record-exceptions:
+          - org.springframework.web.reactive.function.client.WebClientResponseException
+          - com.simplecoding.paymentservice.exception.ReservationCompleteFailedException
+        ignore-exceptions:
+          - java.lang.IllegalStateException
+          - java.lang.IllegalArgumentException
+
+  timelimiter:
+    instances:
+      orderService:
+        timeout-duration: 2000ms
+        cancel-running-future: true
+
+      inventoryService:
+        timeout-duration: 2000ms
+        cancel-running-future: true
+
+  bulkhead:
+    configs:
+      default:
+        max-concurrent-calls: 10
+        max-wait-duration: 0
+        writable-stack-trace-enabled: true
+        event-consumer-buffer-size: 100
+
+    instances:
+      orderService:
+        base-config: default
+        max-concurrent-calls: 5
+        max-wait-duration: 0
+
+      inventoryService:
+        base-config: default
+        max-concurrent-calls: 5
+        max-wait-duration: 0
 
 info:
   app:
