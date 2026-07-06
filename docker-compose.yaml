@@ -146,7 +146,7 @@ services:
       args:
         APP_VERSION: ${NOTIFICATION_SERVICE_VERSION:-1.0.0}
 
-    container_name: notification-service
+    container_name: notification_service
 
     environment:
       MONGO_USER: ${NOTIFICATIONS_MONGO_USER:-dbuser}

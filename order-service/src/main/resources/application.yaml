@@ -94,7 +94,7 @@ resilience4j:
   retry:
     retry-aspect-order: 2
     configs:
-      defaults:
+      default:
         max-attempts: 3
         wait-duration: 200ms
         exponential-backoff-multiplier: 2.0

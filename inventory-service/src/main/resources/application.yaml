@@ -1,6 +1,8 @@
 spring:
   application:
     name: inventory-service
+  profiles:
+    active: elk
 
   datasource:
     url: jdbc:postgresql://${POSTGRES_HOST:localhost}:5432/${POSTGRES_DB}
