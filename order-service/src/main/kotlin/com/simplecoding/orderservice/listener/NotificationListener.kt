@@ -18,13 +18,13 @@ class NotificationListener (
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     fun handleOrderCreated(event: OrderCreatedEvent) {
-        log.info("Подготовлен событие к отправке: {}", event);
+        log.info("Подготовлен событие к отправке: {}", event)
 
         try {
-            notificationClient.notifyOrderCreated(event);
-            log.debug("Уведомление успешно отправлено по id: {}", event.orderId);
+            notificationClient.notifyOrderCreated(event)
+            log.debug("Уведомление успешно отправлено по id: {}", event.orderId)
         } catch (e: Exception) {
-            log.error("Ошибка отправление события по созданию заказа id: {}", event.orderId, e);
+            log.error("Ошибка отправление события по созданию заказа id: {}", event.orderId, e)
         }
     }
 }

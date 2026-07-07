@@ -1,7 +1,7 @@
-package com.simplecoding.orderservice.domain.event
+package com.simplecoding.inventoryservice.domain.event
 
 import com.fasterxml.jackson.annotation.JsonFormat
-import com.simplecoding.orderservice.domain.dto.OrderItemDto
+import com.simplecoding.inventoryservice.domain.dto.OrderItemDto
 import java.time.LocalDateTime
 
 data class OrderCreatedEvent(

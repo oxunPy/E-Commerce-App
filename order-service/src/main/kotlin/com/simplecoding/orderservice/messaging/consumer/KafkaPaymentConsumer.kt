@@ -1,5 +1,10 @@
 package com.simplecoding.orderservice.messaging.consumer
 
+import com.simplecoding.orderservice.dictionary.PaymentStatus
+import com.simplecoding.orderservice.domain.dto.ConfirmPaymentRequestDto
+import com.simplecoding.orderservice.domain.event.PaymentCompletedEvent
+import com.simplecoding.orderservice.domain.event.PaymentFailedEvent
+import com.simplecoding.orderservice.service.OrderService
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.BackOff
@@ -10,9 +15,13 @@ import org.springframework.kafka.retrytopic.SameIntervalTopicReuseStrategy
 import org.springframework.kafka.retrytopic.TopicSuffixingStrategy
 import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Component
+import tools.jackson.databind.ObjectMapper
 
 @Component
-class KafkaPaymentConsumer {
+class KafkaPaymentConsumer(
+    private val objectMapper: ObjectMapper,
+    private val orderService: OrderService
+) {
 
     companion object {
         private val log = LoggerFactory.getLogger(KafkaPaymentConsumer::class.java)
@@ -48,7 +57,30 @@ class KafkaPaymentConsumer {
     fun handlePaymentCompleted(record: ConsumerRecord<String, ByteArray>, ack: Acknowledgment) {
         log.info("Принято сообщение из топика payment-completed-topic")
 
+        val event = try {
+            objectMapper.readValue(record.value(), PaymentCompletedEvent::class.java)
+        } catch (e: Exception) {
+            log.error("Ошибка десериализации события", e)
+            ack.acknowledge()
+            return
+        }
 
+        try {
+            if (event.orderId == null || event.transactionId == null) {
+                throw NullPointerException("orderId || transactionId is null")
+            }
+
+            orderService.confirm(ConfirmPaymentRequestDto(
+                orderId = event.orderId,
+                paymentId = event.transactionId,
+                amount = event.amount,
+                status = event.status ?: PaymentStatus.PENDING))
+            ack.acknowledge()
+            log.info("Оффсет для заказа с orderId: {} сдвинут", event.orderId)
+        } catch(e: Exception) {
+            log.error("Error processing PaymentCompletedEvent", e)
+            throw RuntimeException("Error processing PaymentCompletedEvent", e)
+        }
     }
 
     @KafkaListener(
@@ -59,8 +91,25 @@ class KafkaPaymentConsumer {
     fun handlePaymentFailed(record: ConsumerRecord<String, ByteArray>, ack: Acknowledgment) {
         log.info("Принято сообщение из топика payment-failed-topic")
 
+        val event = try {
+            objectMapper.readValue(record.value(), PaymentFailedEvent::class.java)
+        } catch (e: Exception) {
+            log.error("Ошибка десериализации события", e)
+            ack.acknowledge()
+            return
+        }
 
+        try {
+            if (event.orderId == null) {
+                throw NullPointerException("orderId is null")
+            }
+
+            orderService.cancel(event.orderId)
+            ack.acknowledge()
+            log.info("Оффсет для заказа с orderId: {} сдвинут", event.orderId)
+        } catch(e: Exception) {
+            log.error("Error processing PaymentCompletedEvent", e)
+            throw RuntimeException("Error processing PaymentCompletedEvent", e)
+        }
     }
-
-
 }

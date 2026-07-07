@@ -1,11 +1,11 @@
 package com.simplecoding.inventoryservice.domain.event
 
+import java.math.BigDecimal
+
 data class StockReservedEvent(
     val orderId: Long?,
 
-    val transactionId: Long?,
+    val amount: BigDecimal,
 
-    val inventoryId: Long?,
-
-    val products: List<String>?,
+    val products: List<String?>,
 )

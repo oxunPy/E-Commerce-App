@@ -1,6 +1,6 @@
-package com.simplecoding.paymentservice.domain.event
+package com.simplecoding.inventoryservice.domain.event
 
-import com.simplecoding.paymentservice.dictionary.PaymentStatus
+import com.simplecoding.inventoryservice.dictionary.PaymentStatus
 import java.math.BigDecimal
 
 data class PaymentCompletedEvent(

@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.Random
+import kotlin.collections.emptyList
 
 @Service
 class OrderServiceImpl(
@@ -77,7 +78,8 @@ class OrderServiceImpl(
                 OrderCreatedEvent(
                     orderId = savedOrder.id!!,
                     context = MDC.getCopyOfContextMap(),
-                    timestamp = LocalDateTime.now()
+                    timestamp = LocalDateTime.now(),
+                    items = emptyList()
                 )
             )
 

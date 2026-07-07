@@ -2,6 +2,7 @@ package com.simplecoding.orderservice.service
 
 import com.simplecoding.orderservice.dictionary.OutboxStatus
 import com.simplecoding.orderservice.domain.dto.CreateOrderRequestDto
+import com.simplecoding.orderservice.domain.dto.OrderItemDto
 import com.simplecoding.orderservice.domain.entity.Order
 import com.simplecoding.orderservice.domain.entity.OrderItem
 import com.simplecoding.orderservice.domain.event.OrderCreatedEvent
@@ -54,9 +55,10 @@ class SagaOrderServiceImpl(
             log.debug("Заказ создан id: {}", savedOrder.id)
 
             val orderCreatedEvent = OrderCreatedEvent(
-                savedOrder.id ?: 0L,
-                MDC.getCopyOfContextMap(),
-                LocalDateTime.now()
+                orderId = savedOrder.id ?: 0L,
+                context = MDC.getCopyOfContextMap(),
+                items = items.map { OrderItemDto(it.id, savedOrder.id, it.productId, it.quantity ?: 0) },
+                timestamp = LocalDateTime.now(),
             )
 
             // Сохраняем в outbox
