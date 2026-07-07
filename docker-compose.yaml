@@ -625,7 +625,7 @@ services:
     ports:
       - "8090:8080"
     environment:
-      KAFKA_CLUSTERS_0_NAME: orderhub
+      KAFKA_CLUSTERS_0_NAME: ecommerce-app
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "kafka:29092"   # используем внутренний INTERNAL listener
     depends_on:
       - kafka

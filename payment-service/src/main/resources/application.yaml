@@ -17,6 +17,27 @@ spring:
     show-sql: true
     open-in-view: false
 
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: payment-service-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+    producer:
+      acks: all
+      retries: 3
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      compression-type: gzip
+      properties:
+        enable.idempotency: true
+        spring.json.add.type.headers: true
+        max.in.flight.requests.per.connection: 1
+        linger.ms: 5
+
+
 server:
   port: 8084
 
@@ -186,6 +207,12 @@ resilience4j:
         base-config: default
         max-concurrent-calls: 5
         max-wait-duration: 0
+
+app:
+  topic:
+    payment-completed-topic: "payment.completed.topic"
+    payment-failed-topic: "payment.failed.topic"
+    stock-reserved-topic: "stock.reserved.topic"
 
 info:
   app:

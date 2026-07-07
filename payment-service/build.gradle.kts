@@ -7,7 +7,7 @@ plugins {
 val springCloudVersion by extra("2025.1.2")
 
 group = "com.simplecoding"
-version = "0.0.1-SNAPSHOT"
+version = "1.0.0"
 description = "payment-service"
 
 java {
@@ -34,9 +34,11 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:7.4")
     implementation("org.springframework.boot:spring-boot-starter-aop:4.0.0-M2")
     implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j")
+    implementation("org.springframework.boot:spring-boot-starter-kafka")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("io.projectreactor:reactor-test")
+    testImplementation("org.springframework.kafka:spring-kafka-test")
     runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
     runtimeOnly("io.micrometer:micrometer-registry-otlp")

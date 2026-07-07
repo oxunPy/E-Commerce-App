@@ -1,4 +1,4 @@
-package com.simplecoding.paymentservice.domain
+package com.simplecoding.paymentservice.dictionary
 
 enum class PaymentStatus {
     PENDING,

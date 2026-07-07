@@ -1,7 +1,7 @@
 package com.simplecoding.paymentservice.domain.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.simplecoding.paymentservice.domain.PaymentStatus
+import com.simplecoding.paymentservice.dictionary.PaymentStatus
 import java.math.BigDecimal
 
 data class ConfirmPaymentRequestDto(

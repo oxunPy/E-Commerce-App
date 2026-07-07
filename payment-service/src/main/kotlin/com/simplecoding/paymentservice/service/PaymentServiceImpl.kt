@@ -1,6 +1,6 @@
 package com.simplecoding.paymentservice.service
 
-import com.simplecoding.paymentservice.domain.PaymentStatus
+import com.simplecoding.paymentservice.dictionary.PaymentStatus
 import com.simplecoding.paymentservice.domain.dto.CheckoutPaymentRequestDto
 import com.simplecoding.paymentservice.domain.dto.CheckoutPaymentResponseDto
 import com.simplecoding.paymentservice.domain.dto.CompleteReservationRequestDto

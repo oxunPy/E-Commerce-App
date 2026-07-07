@@ -1,6 +1,6 @@
 package com.simplecoding.paymentservice.domain.entity
 
-import com.simplecoding.paymentservice.domain.PaymentStatus
+import com.simplecoding.paymentservice.dictionary.PaymentStatus
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
