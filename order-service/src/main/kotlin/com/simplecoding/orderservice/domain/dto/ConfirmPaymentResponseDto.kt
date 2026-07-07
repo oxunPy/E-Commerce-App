@@ -1,7 +1,7 @@
 package com.simplecoding.orderservice.domain.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.simplecoding.orderservice.domain.OrderStatus
+import com.simplecoding.orderservice.dictionary.OrderStatus
 
 data class ConfirmPaymentResponseDto (
     @JsonProperty("order_id")

@@ -1,4 +1,4 @@
-package com.simplecoding.orderservice.domain
+package com.simplecoding.orderservice.dictionary
 
 enum class PaymentStatus {
     PENDING,

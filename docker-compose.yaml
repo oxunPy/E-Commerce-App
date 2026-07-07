@@ -55,6 +55,8 @@ services:
       SPRING_DATASOURCE_USERNAME: ${ORDERS_POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${ORDERS_POSTGRES_PASSWORD}  # Секрет!
 
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+
       # -----------------------------------------------------------------------
       # Для миграций и прямых запросов (если нужно внутри приложения)
       # -----------------------------------------------------------------------
@@ -71,7 +73,8 @@ services:
         condition: service_healthy
       jaeger:
         condition: service_started
-
+      kafka:
+        condition: service_started
     restart: unless-stopped
 
     healthcheck:
@@ -153,6 +156,8 @@ services:
       MONGO_PASSWORD: ${NOTIFICATIONS_MONGO_PASSWORD:-dbpass}
       MONGO_HOST: ${NOTIFICATIONS_MONGO_HOST:-notifications-db-mongo}
       MONGO_PORT: ${NOTIFICATIONS_MONGO_PORT}
+
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
 
     ports:
       - "${NOTIFICATION_SERVICE_PORT:-8083}:8083"           # Проброс порта наружу
@@ -453,6 +458,8 @@ services:
       ORDER_SERVICE_URL: ${ORDER_SERVICE_URL}
       INVENTORY_SERVICE_URL: ${INVENTORY_SERVICE_URL}
 
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+
     depends_on:
       payments-db-postgres:
         condition: service_healthy
@@ -524,6 +531,8 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       REDIS_HOST: ${REDIS_HOST}
 
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+
     depends_on:
       inventory-db-postgres:
         condition: service_healthy
@@ -571,6 +580,58 @@ services:
     networks:
       - e-commerce-network
 
+  kafka:
+    image: apache/kafka:3.8.0
+    container_name: kafka
+    ports:
+      - "9092:9092"   # PLAINTEXT для внешних подключений (хост, инструменты)
+    environment:
+      CLUSTER_ID: ${CLUSTER_ID}   # ваш UUID
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: "broker,controller"
+
+      # Два протокола: внутренний для Compose и внешний для хоста
+      KAFKA_LISTENERS: "INTERNAL://0.0.0.0:29092,PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka:29092,PLAINTEXT://host.docker.internal:9092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT"
+
+
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@localhost:9093"
+
+      # Параметры для single‑node
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 5000
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_LOG_DIRS: "/var/lib/kafka/data"
+
+    networks:
+      - e-commerce-network
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"   # резолвит host.docker.internal на хост (Linux тоже)
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test: [ "CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    ports:
+      - "8090:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: orderhub
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "kafka:29092"   # используем внутренний INTERNAL listener
+    depends_on:
+      - kafka
+    networks:
+      - e-commerce-network
+
 networks:
   e-commerce-network:
     name: e-commerce-network
@@ -598,3 +659,5 @@ volumes:
     name: e_comm_inventory_data
   redis_data:
     name: e_comm_redis_data
+  kafka_data:
+    name: e_comm_kafka_data

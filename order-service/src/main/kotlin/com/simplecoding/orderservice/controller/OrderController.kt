@@ -6,6 +6,7 @@ import com.simplecoding.orderservice.domain.dto.ConfirmPaymentResponseDto
 import com.simplecoding.orderservice.domain.dto.CreateOrderRequestDto
 import com.simplecoding.orderservice.domain.dto.CreateOrderResponseDto
 import com.simplecoding.orderservice.service.OrderService
+import com.simplecoding.orderservice.service.SagaOrderService
 import jakarta.validation.Valid
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
@@ -21,6 +22,9 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/v1/orders")
 class OrderController {
     @Autowired
+    private lateinit var sagaOrderService: SagaOrderService
+
+    @Autowired
     private lateinit var orderService: OrderService
 
     @PostMapping("/create")
@@ -28,6 +32,15 @@ class OrderController {
         return ResponseEntity.ok(
             CreateOrderResponseDto.fromOrder(
                 orderService.create(request)
+            )
+        )
+    }
+
+    @PostMapping("/saga/create")
+    fun createOrderSaga(@Valid @RequestBody request: CreateOrderRequestDto): ResponseEntity<CreateOrderResponseDto> {
+        return ResponseEntity.ok(
+            CreateOrderResponseDto.fromOrder(
+                sagaOrderService.createOrder(request)
             )
         )
     }

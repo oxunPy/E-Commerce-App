@@ -1,7 +1,7 @@
 package com.simplecoding.orderservice.usecase
 
 import com.simplecoding.orderservice.client.PaymentClient
-import com.simplecoding.orderservice.domain.PaymentStatus
+import com.simplecoding.orderservice.dictionary.PaymentStatus
 import com.simplecoding.orderservice.domain.dto.PaymentResponseDto
 import com.simplecoding.orderservice.exception.PaymentFailedException
 import io.github.resilience4j.bulkhead.annotation.Bulkhead

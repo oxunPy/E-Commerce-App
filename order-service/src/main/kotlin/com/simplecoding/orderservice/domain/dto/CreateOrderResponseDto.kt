@@ -2,7 +2,7 @@ package com.simplecoding.orderservice.domain.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.simplecoding.orderservice.domain.entity.Order
-import com.simplecoding.orderservice.domain.OrderStatus
+import com.simplecoding.orderservice.dictionary.OrderStatus
 import java.math.BigDecimal
 import java.time.LocalDateTime
 

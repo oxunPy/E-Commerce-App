@@ -1,6 +1,6 @@
 package com.simplecoding.orderservice.domain.entity
 
-import com.simplecoding.orderservice.domain.OrderStatus
+import com.simplecoding.orderservice.dictionary.OrderStatus
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity

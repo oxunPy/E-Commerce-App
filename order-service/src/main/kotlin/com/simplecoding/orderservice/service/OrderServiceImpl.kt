@@ -1,7 +1,7 @@
 package com.simplecoding.orderservice.service
 
-import com.simplecoding.orderservice.domain.OrderStatus
-import com.simplecoding.orderservice.domain.PaymentStatus
+import com.simplecoding.orderservice.dictionary.OrderStatus
+import com.simplecoding.orderservice.dictionary.PaymentStatus
 import com.simplecoding.orderservice.domain.dto.CancelOrderResponseDto
 import com.simplecoding.orderservice.domain.dto.ConfirmPaymentRequestDto
 import com.simplecoding.orderservice.domain.dto.ConfirmPaymentResponseDto
